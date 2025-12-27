@@ -56,19 +56,20 @@ public class EventService {
 		  return gameEventRepository.save(event);
 	}
 	
-	@Cacheable("activeEvents")
+	
 	public List<GameEvent> activeEvents(){
+		System.out.println("Get active events from db");
 		return gameEventRepository.findByStatus(EventStatus.ACTIVE);
 	}
 	
-	@Cacheable("allEvents")
 	public List<GameEvent> allEvents(){
+		System.out.println("Get all events from db");
 		return gameEventRepository.findAll();
 	}
 	
 
 	public GameEvent getEventById(Long eventId) {
-		System.out.println("Get event from db");
+		System.out.println("Get eventId from db");
 		return gameEventRepository.findById(eventId).orElseThrow(()->new EntityNotFoundException("Event Not found"));
 	}
 	
