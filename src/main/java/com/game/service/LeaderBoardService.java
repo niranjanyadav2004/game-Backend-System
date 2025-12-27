@@ -3,6 +3,8 @@ package com.game.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.game.DTO.ScoreRequest;
@@ -24,6 +26,8 @@ public class LeaderBoardService {
 	private final GameRepository gameRepository;
 	private final ScoreRepository scoreRepository;
 	
+	
+	@CacheEvict(value = {"globalLeaderboard","countryLeaderboard"}, allEntries = true)
 	public LeaderboardScore submit(ScoreRequest request) {
 		Player player = playerRepository.findById(request.getPlayerId())
 				                        .orElseThrow(()->new EntityNotFoundException("Player not exist"));
@@ -46,12 +50,13 @@ public class LeaderBoardService {
 	}
 	
 	
+	@Cacheable(value = "globalLeaderboard",key = "#root.args[0]")
 	public List<LeaderboardScore> topGlobal(Long gameId){
 		Game game = gameRepository.findById(gameId).orElseThrow(()-> new EntityNotFoundException("Game not exist"));
 		return scoreRepository.findByGameOrderByScoreDesc(game);
 	}
 	
-	
+	@Cacheable(value = "countryLeaderboard",key = "#root.args[0] + ':' + #root.args[1]")
 	public List<LeaderboardScore> topCountry(Long gameId, String country){
 	    Game game = gameRepository.findById(gameId).orElseThrow(()-> new EntityNotFoundException("Game not exist"));
 		return scoreRepository.findByGameAndCountryOrderByScoreDesc(game, country);

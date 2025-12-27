@@ -44,6 +44,7 @@ public class PlayerProgressionService {
 	}
 	
 	public PlayerProgression getPlayerProgress(Long playerId) {
+		System.out.println("Progression from db");
 		Player player = playerRepository.findById(playerId).orElseThrow(()->new EntityNotFoundException("Player Not found"));
 		
 		return playerProgressionRepository

@@ -3,6 +3,8 @@ package com.game.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.game.DTO.EventRequest;
@@ -23,6 +25,7 @@ public class EventService {
 	private final GameRepository gameRepository;
 	private final GameEventRepository gameEventRepository;
 	
+	@CacheEvict(value = {"activeEvents","allEvents"},allEntries = true)
 	public GameEvent create(EventRequest request) {
 		Game game = gameRepository.findById(request.getGameId()).orElseThrow(()->new EntityNotFoundException("Game not found"));
 		
@@ -38,6 +41,8 @@ public class EventService {
 		return gameEventRepository.save(gameEvent);
 	}
 	
+	
+	@CacheEvict(value = {"activeEvents","allEvents"},allEntries = true)
 	public GameEvent update(Long eventId, EventUpdateRequest request) {
 		  Game game = gameRepository.findById(request.getGameId()).orElseThrow(()->new EntityNotFoundException("Game not found"));
 		  GameEvent event = gameEventRepository.findById(eventId).orElseThrow(()->new EntityNotFoundException("Event Not found"));
@@ -51,15 +56,19 @@ public class EventService {
 		  return gameEventRepository.save(event);
 	}
 	
+	@Cacheable("activeEvents")
 	public List<GameEvent> activeEvents(){
 		return gameEventRepository.findByStatus(EventStatus.ACTIVE);
 	}
 	
+	@Cacheable("allEvents")
 	public List<GameEvent> allEvents(){
 		return gameEventRepository.findAll();
 	}
 	
+
 	public GameEvent getEventById(Long eventId) {
+		System.out.println("Get event from db");
 		return gameEventRepository.findById(eventId).orElseThrow(()->new EntityNotFoundException("Event Not found"));
 	}
 	
